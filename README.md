@@ -1,4 +1,4 @@
-# Safety Board Imaschine
+# Safety Board I-Maschine
 
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 ![Tech](https://img.shields.io/badge/stack-nextjs%20%7C%20firebase-blue)
@@ -32,261 +32,96 @@ Mulai sejak: 2026-05-01
 ### PIN Security
 
 * Required for:
-
   * Calibration
   * Accident declaration
 * Stored securely in Firestore
 
 ---
 
-### Dashboard
-
-<img src="https://github.com/user-attachments/assets/a058ff62-bcc0-40b8-9ee6-a8612162f445" width="600" />
-
-* Logo I Maschine
-* Dasbor Manajemen K3
-* Status:
-
-  * Online
-  * Berjalan
-* Info:
-
-  * I Maschine Lab • Politeknik Manufaktur Bandung
-  * 0 Hari Aman
-
----
-
-### Calibration System
-
-<img src="https://github.com/user-attachments/assets/2813ef81-4018-4bfb-8deb-f188963fa3da" width="600" />
-
-#### Manual Days Input
-
-* Set safe days manually
-
-#### Set Start Date
-
-* System calculates automatically based on date
-
----
-
-### Accident Declaration
-
-* Reset safe days to 0
-* Set start date to current date
-* Save incident to log
-
----
-
-### Incident Log
-
-* Stores all accident records
-* Persistent in Firestore
-
----
-
-### Export Feature
-
-* Export data to PDF
-* Export data to Excel
-
----
-
-## Tech Stack
-
-* Next.js
-* Firebase (Firestore, Authentication)
-* Tailwind CSS
-
----
-
-## Firebase Setup
-
-### 1. Create Firebase Project
-
-* Open [https://console.firebase.google.com](https://console.firebase.google.com)
-* Click Add Project
-* Name: safety-board-imaschine
-* Disable Analytics (optional)
-
-After creation:
-Hello, Diaz
-Welcome back to Firebase!
-
----
-
-### 2. Register Web App
-
-* Click Web Icon
-* App name: safety-board-web
-
-Firebase will generate config:
-
-```js
-const firebaseConfig = {
-  apiKey: "xxx",
-  authDomain: "xxx.firebaseapp.com",
-  projectId: "xxx",
-  storageBucket: "xxx.appspot.com",
-  messagingSenderId: "xxx",
-  appId: "xxx"
-}
-```
-
----
-
-### 3. Enable Firestore
-
-* Go to Firestore Database
-* Click Create Database
-* Select Production Mode
-* Choose region: asia-southeast1
-
----
-
-### 4. Environment Variables
-
-File: .env.local
-
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=xxx
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=xxx
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=xxx
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=xxx
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=xxx
-NEXT_PUBLIC_FIREBASE_APP_ID=xxx
-```
-
----
-
-### 5. Firebase Initialization
-
-File: src/lib/firebase.ts
-
-```ts
-import { initializeApp } from "firebase/app"
-import { getFirestore } from "firebase/firestore"
-
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
-}
-
-const app = initializeApp(firebaseConfig)
-
-export const db = getFirestore(app)
-```
-
----
-
-### 6. Firestore Structure
-
-Collection: safety
-
-Document: main
-
-```json
-{
-  "startDate": "2026-05-01",
-  "safeDays": 0,
-  "lastAccident": null,
-  "pin": "1234"
-}
-```
-
-Collection: logs
-
-```json
-{
-  "date": "2026-05-20",
-  "type": "ACCIDENT",
-  "note": "Worker injury"
-}
-```
-
----
-
-### 7. Security Rules
-
-```txt
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-
-    match /safety/main {
-      allow read: if true;
-      allow write: if request.resource.data.pin == resource.data.pin;
-    }
-
-    match /logs/{id} {
-      allow read: if true;
-      allow write: if true;
-    }
-  }
-}
-```
-
----
-
-## Deployment (Vercel)
-
-* Open [https://vercel.com](https://vercel.com)
-* Go to Project Settings
-* Open Environment Variables
-* Add all Firebase variables
-
-Keys:
-
-NEXT_PUBLIC_FIREBASE_API_KEY
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-NEXT_PUBLIC_FIREBASE_PROJECT_ID
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-NEXT_PUBLIC_FIREBASE_APP_ID
-
----
-
-## Environment Variables Lifetime
-
-* Firebase config: no expiration
-* Vercel environment variables:
-
-  * active until deleted
-  * require redeploy after change
-* .env.local:
-
-  * local only
-  * no expiration
-
-Important:
-
-* NEXT_PUBLIC variables are exposed to frontend
-* Do not store sensitive secrets
-
----
-
-## Run Project
-
-```bash
+Aplikasi web dashboard digital display untuk memantau keselamatan kerja (Safe Days Counter) dan mencatat riwayat insiden K3 secara real-time. 
+
+Dirancang khusus untuk I Maschine Lab — Politeknik Manufaktur Bandung dan dapat dijalankan dengan mudah di Vercel dengan Neon PostgreSQL.
+
+## 🌟 Fitur Utama
+* Kalkulasi Hari Aman Dinamis: Angka hari kerja aman dihitung secara otomatis berdasarkan selisih tanggal saat ini dengan tanggal mulai (startDate).
+* Tampilan Industrial Display Board: UI futuristik khas papan skor digital laboratorium dengan jam real-time (WIB), indikator tanggal, counter neon raksasa, dan banner slogan K3.
+* Kontrol Manajer Terproteksi PIN: Kalibrasi tanggal mulai dan deklarasi kecelakaan dapat dilakukan langsung di halaman utama melalui pop-up modal berproteksi PIN keamanan.
+* Auto-Inisialisasi Database: Tabel database Neon (safety_main dan safety_logs) otomatis dibuat saat aplikasi pertama kali dijalankan.
+* Log Riwayat Insiden K3: Mencatat tanggal, tipe, dan deskripsi insiden kecelakaan kerja secara otomatis ke database.
+
+## 🛠️ Tech Stack
+Framework: Next.js 16 (App Router, Turbopack, React 19)
+Styling: Tailwind CSS
+Database: Neon PostgreSQL (@neondatabase/serverless)
+Icons: Lucide React
+Deployment: Vercel
+
+## 📊 Struktur Database (Neon Postgres)
+Aplikasi ini menggunakan dua tabel sederhana dalam database Neon:
+
+1. safety_main
+Menyimpan konfigurasi utama status keselamatan kerja.
+
+Kolom	Tipe Data	Keterangan
+'''
+id	INT (PK)	Fixed ID (1)
+start_date	VARCHAR(10)	Tanggal mulai perhitungan (YYYY-MM-DD)
+pin	VARCHAR(20)	PIN keamanan manajer (default: '1234')
+last_accident	VARCHAR(10)	Tanggal kecelakaan terakhir (YYYY-MM-DD / null)
+'''
+
+2. safety_logs
+Menyimpan riwayat dan catatan kecelakaan kerja.
+
+Kolom	Tipe Data	Keterangan
+'''
+id	SERIAL (PK)	Auto increment ID
+date	VARCHAR(10)	Tanggal kejadian (YYYY-MM-DD)
+type	VARCHAR(20)	Tipe insiden (ACCIDENT, NEAR_MISS, dll.)
+note	TEXT	Catatan / deskripsi lokasi insiden
+created_at	TIMESTAMP	Waktu pembuatan log
+'''
+
+## ⚙️ Variabel Lingkungan (Environment Variables)
+Buat file .env.local di root direktori proyek Anda dan tambahkan kredensial Neon Postgres:
+
+'''
+DATABASE_URL="postgresql://neondb_owner:YOUR_PASSWORD@ep-raspy-art-azcqx23t-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+'''
+
+## 🚀 Panduan Memulai di Lokal (Local Development)
+1. Clone Repositori
+git clone https://github.com/nj-ramadhan/safety-counter.git
+cd safety-counter
+
+2. Install Dependencies
 npm install
+
+3. Konfigurasi Environment Variable
+Salin string koneksi database Neon Anda ke file .env.local.
+
+4. Jalankan Development Server
 npm run dev
-```
+Buka http://localhost:3000 di browser Anda.
 
-Open:
-[http://localhost:3000](http://localhost:3000)
+## ☁️ Panduan Deploy ke Vercel
+Push kode terbaru ke GitHub:
+'''
+git add .
+git commit -m "Refactor database ke Neon Postgres & update README"
+git push origin main
+'''
 
----
+* Buka Vercel Dashboard dan buat New Project.
+* Hubungkan repositori GitHub safety-counter.
+* Pada bagian Environment Variables, tambahkan DATABASE_URL berisi string koneksi Neon Postgres Anda.
+* Klik Deploy.
 
-## Status
+## 🔐 Keamanan PIN
+PIN bawaan untuk kalibrasi dan deklarasi kecelakaan adalah 1234. PIN dapat diubah langsung melalui SQL Editor di konsol Neon:
+'''
+UPDATE safety_main SET pin = 'PIN_BARU_ANDA' WHERE id = 1;
+'''
 
-This project is active and can be extended.
-
----
-
-## License
-
-Free to use for educational and internal industrial monitoring purposes.
+## 📜 Lisensi & Kredit
+Dikembangkan untuk I Maschine Lab — Politeknik Manufaktur Bandung.
