@@ -17,6 +17,18 @@ interface IncidentLog {
   createdAt: string;
 }
 
+function calculateSafeDays(startDate: string, currentDate: Date) {
+  const [year, month, day] = startDate.split('-').map(Number);
+  const startDay = Date.UTC(year, month - 1, day);
+  const currentDay = Date.UTC(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    currentDate.getDate(),
+  );
+
+  return Math.max(0, Math.floor((currentDay - startDay) / (1000 * 60 * 60 * 24)));
+}
+
 export default function DisplayBoard() {
   const [safety, setSafety] = useState<SafetyData | null>(null);
   const [logs, setLogs] = useState<IncidentLog[]>([]);
@@ -42,7 +54,7 @@ export default function DisplayBoard() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/safety');
+      const res = await fetch('/api/safety', { cache: 'no-store' });
       const result = await res.json();
 
       if (!res.ok || !result.success) {
@@ -103,6 +115,10 @@ export default function DisplayBoard() {
         year: 'numeric',
       })
     : '...';
+
+  const displayedSafeDays = safety && now
+    ? calculateSafeDays(safety.startDate, now)
+    : safety?.safeDays ?? 0;
 
   // Handle Kalibrasi
   const handleCalibrate = async (e: React.FormEvent) => {
@@ -165,7 +181,7 @@ export default function DisplayBoard() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-3 sm:p-4 md:p-6 lg:p-8 bg-[#0a0e17] text-white border-2 sm:border-4 border-[#00ff88] shadow-[inset_0_0_50px_rgba(0,255,136,0.15)] overflow-x-hidden font-sans">
+    <div className="min-h-screen flex flex-col p-3 sm:p-4 md:p-6 lg:p-8 bg-[#0a0e17] text-white border-2 sm:border-4 border-[#00ff88] shadow-[inset_0_0_50px_rgba(0,255,136,0.15)] overflow-x-hidden overflow-y-auto font-sans">
       {/* ===== HEADER ===== */}
       <header className="flex flex-col xl:flex-row justify-between items-center border-b-2 border-slate-800 pb-3 sm:pb-4 gap-4 xl:gap-4">
         {/* Logo + Judul */}
@@ -208,7 +224,7 @@ export default function DisplayBoard() {
       </header>
 
       {/* ===== MAIN DISPLAY ===== */}
-      <main className="flex-grow flex flex-col justify-center items-center text-center my-4 sm:my-6">
+      <main className="flex-grow flex flex-col justify-center items-center text-center my-4 sm:my-6 min-h-0">
         {error && (
           <div className="mb-4 bg-rose-950/80 border border-rose-600 text-rose-200 px-6 py-3 rounded-xl text-sm">
             ⚠️ {error}
@@ -220,11 +236,11 @@ export default function DisplayBoard() {
         </h3>
 
         {/* Big Counter Display */}
-        <div className="text-[15vh] sm:text-[20vh] md:text-[25vh] lg:text-[30vh] font-black leading-none text-[#00ff88] drop-shadow-[0_0_50px_rgba(0,255,136,0.6)] my-2 font-mono">
-          {loading ? '---' : (safety?.safeDays ?? 0)}
+        <div className="text-[clamp(6rem,20vw,18rem)] max-w-full font-black leading-[0.85] text-[#00ff88] drop-shadow-[0_0_50px_rgba(0,255,136,0.6)] my-2 font-mono">
+          {loading ? '---' : displayedSafeDays}
         </div>
 
-        <div className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl uppercase tracking-[0.2em] text-slate-400 font-semibold mb-4 sm:mb-6">
+        <div className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-400 font-semibold mb-4 sm:mb-6">
           HARI
         </div>
 
